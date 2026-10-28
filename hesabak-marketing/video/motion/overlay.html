@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<style>
+/* الخطوط بتتحقن وقت البناء من tools/render-motion.js */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: transparent; }
+body { font-family: Cairo, sans-serif; color: #0B2545; position: relative; }
+.layer { position: absolute; will-change: transform, opacity; }
+.glass {
+  background: rgba(255,255,255,.93); border-radius: 36px;
+  box-shadow: 0 30px 70px rgba(6,23,46,.28), 0 0 0 2px rgba(15,163,163,.18) inset;
+  padding: 30px 34px;
+}
+.dark { background: rgba(6,23,46,.92); color: #fff; box-shadow: 0 30px 70px rgba(0,0,0,.35), 0 0 0 2px rgba(231,194,92,.35) inset; }
+.tag { position: absolute; top: -20px; left: 30px; background: #C99A2E; color: #06172E; font-weight: 800; font-size: 24px; padding: 4px 18px; border-radius: 99px; }
+.lbl { font-size: 32px; font-weight: 700; color: #55657E; }
+.dark .lbl { color: #BFD0E4; }
+.big { font-size: 78px; font-weight: 900; line-height: 1.15; direction: ltr; text-align: right; }
+.q { color: #D9534F; }
+.ok { color: #0FA3A3; }
+.gold { color: #E7C25C; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.ic { width: 76px; height: 76px; border-radius: 22px; display: grid; place-items: center; font-size: 44px; flex: none; }
+.chip { display: inline-flex; align-items: center; gap: 12px; padding: 14px 26px; border-radius: 99px; font-weight: 800; font-size: 34px; }
+
+/* الترجمة */
+#cap { left: 50px; right: 50px; bottom: 210px; text-align: center; }
+#cap .box { display: inline-block; background: rgba(6,23,46,.82); border-radius: 30px; padding: 18px 34px; font-weight: 900; font-size: 60px; line-height: 1.45; color: #fff; }
+#cap .w { display: inline-block; margin: 0 6px; transition: none; }
+#cap .w.on { color: #E7C25C; transform: scale(1.08); }
+#cap .w.past { color: #fff; }
+#cap .w.fut { color: rgba(255,255,255,.55); }
+
+/* لوجو صغير */
+#bug { top: 70px; left: 60px; display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,.92); border-radius: 99px; padding: 10px 30px 10px 12px; font-weight: 900; font-size: 44px; }
+#bug svg { width: 70px; height: 70px; }
+
+/* داشبورد */
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.kpi { background: #F2F7FA; border-radius: 28px; padding: 22px 26px; }
+.kpi .lbl { font-size: 28px; }
+.kpi .big { font-size: 64px; }
+.kpi .d { font-size: 28px; font-weight: 800; direction: ltr; text-align: right; }
+.bars { display: flex; align-items: flex-end; justify-content: space-around; height: 300px; margin-top: 24px; }
+.bars .b { width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.bars .b i { display: block; width: 92px; border-radius: 20px 20px 8px 8px; background: linear-gradient(180deg,#14C2B3,#0FA3A3); }
+.bars .b.g i { background: linear-gradient(180deg,#F1D27A,#C99A2E); }
+.bars .b em { font-style: normal; font-size: 28px; font-weight: 800; margin-top: 10px; color: #55657E; }
+.bars .b span { font-size: 30px; font-weight: 900; margin-bottom: 8px; direction: ltr; }
+
+/* قبل وبعد */
+.ba { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 40px; overflow: hidden; box-shadow: 0 30px 80px rgba(6,23,46,.35); }
+.ba > div { padding: 34px 30px; }
+.ba .before { background: #EEF1F5; color: #55657E; }
+.ba .after { background: linear-gradient(170deg,#0FA3A3,#0B7F82); color: #fff; }
+.ba h3 { font-size: 46px; font-weight: 900; margin-bottom: 18px; }
+.ba li { list-style: none; font-size: 34px; font-weight: 700; line-height: 1.35; padding: 14px 0; border-top: 2px dashed rgba(0,0,0,.08); }
+.ba .after li { border-top-color: rgba(255,255,255,.25); }
+.ba b { font-weight: 900; }
+
+/* شاشة النهاية */
+#end { inset: 0; display: flex; flex-direction: column; align-items: center; padding-top: 170px; color: #fff; }
+#endbg { inset: 0; background: radial-gradient(900px 900px at 80% 8%, rgba(20,194,179,.38), transparent 60%), radial-gradient(800px 800px at 10% 75%, rgba(201,154,46,.28), transparent 60%), linear-gradient(170deg,#13315C,#0B2545 45%,#06172E); }
+.plans { display: flex; gap: 22px; }
+.plan { width: 300px; border-radius: 32px; padding: 24px 10px; text-align: center; background: rgba(255,255,255,.09); border: 2px solid rgba(255,255,255,.2); }
+.plan.f { background: #fff; color: #0B2545; }
+.plan .n { font-size: 38px; font-weight: 800; }
+.plan .p { font-size: 80px; font-weight: 900; line-height: 1.15; direction: ltr; }
+.plan .u { font-size: 27px; font-weight: 700; opacity: .85; }
+.phone { display: flex; align-items: center; gap: 10px; background: #1FAF5A; color: #fff; border-radius: 99px; padding: 12px 26px; font-weight: 900; font-size: 46px; direction: ltr; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const LOGO = '%LOGO%';
+const WORDS = %WORDS%;          // [{t,s,e}] توقيت الكلمات من تفريغ ElevenLabs
+const OFF = %OFF%;              // بداية التعليق الصوتي في الفيديو
+const TOTAL = %TOTAL%;
+
+const $ = (h) => { const d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstChild; };
+const root = document.getElementById('root');
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const back = (x) => { x = clamp(x); const c = 1.70158; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const fmt = (n) => Math.round(n).toLocaleString('en-US');
+// ظهور بعنصر: دخول pop واختفاء fade
+function show(el, T, a, b, { from = 'up', dist = 80 } = {}) {
+  const i = clamp((T - a) / 0.45), o = clamp((b - T) / 0.35);
+  const v = Math.min(i, o);
+  if (v <= 0) { el.style.opacity = 0; return 0; }
+  const p = back(i);
+  const dx = from === 'right' ? (1 - p) * dist : from === 'left' ? -(1 - p) * dist : 0;
+  const dy = from === 'up' ? (1 - p) * dist : from === 'down' ? -(1 - p) * dist : 0;
+  const s = from === 'pop' ? 0.6 + 0.4 * p : 1;
+  el.style.opacity = ease(o) * Math.min(1, i * 2);
+  el.style.transform = `translate(${dx}px,${dy}px) scale(${s})`;
+  return v;
+}
+
+/* ---------- العناصر ---------- */
+const bug = $(`<div id="bug" class="layer">${LOGO}<span>حسابك</span></div>`); root.append(bug);
+
+// مشهد 1: الصيدلية — مبيعات بتزيد وصافي الربح مجهول
+const s1 = $(`<div class="layer glass" style="top:230px;right:60px;width:600px">
+  <div class="row"><div><div class="lbl">مبيعات النهارده (جنيه)</div><div class="big ok" id="s1n">0</div></div><div class="ic" style="background:#E5F6F4">💊</div></div>
+  <div class="row" style="margin-top:14px;border-top:2px dashed #DCE4EE;padding-top:14px"><div class="lbl">صافي الربح؟</div><div class="big q" id="s1q" style="font-size:70px">؟؟؟</div></div>
+</div>`); root.append(s1);
+
+// مشهد 2: قطع الغيار — فلوس محبوسة في المخزن
+const s2 = $(`<div class="layer glass" style="top:230px;left:60px;width:620px">
+  <div class="row"><div class="lbl">بضاعة في المخزن</div><div class="ic" style="background:#FBF3E0">📦</div></div>
+  <div style="margin-top:12px;height:40px;border-radius:20px;background:#EEF1F5;overflow:hidden"><i id="s2bar" style="display:block;height:100%;width:0;background:linear-gradient(90deg,#C99A2E,#E7C25C)"></i></div>
+  <div class="row" style="margin-top:16px"><div class="lbl">بيتباع منها؟</div><div class="big q" style="font-size:64px">مش معروف</div></div>
+</div>`); root.append(s2);
+
+// مشهد 3: المطعم — المصاريف بتسبق المبيعات
+const s3 = $(`<div class="layer glass" style="top:230px;right:60px;width:640px">
+  <div class="lbl" style="margin-bottom:10px">الشهر ده</div>
+  <div class="row"><span style="font-size:34px;font-weight:800;width:170px">المبيعات</span><div style="flex:1;height:46px;background:#EEF1F5;border-radius:23px;overflow:hidden"><i id="s3a" style="display:block;height:100%;width:0;background:#0FA3A3;border-radius:23px"></i></div></div>
+  <div class="row" style="margin-top:16px"><span style="font-size:34px;font-weight:800;width:170px">المصاريف</span><div style="flex:1;height:46px;background:#EEF1F5;border-radius:23px;overflow:hidden"><i id="s3b" style="display:block;height:100%;width:0;background:#D9534F;border-radius:23px"></i></div></div>
+  <div class="row" style="margin-top:18px"><div class="lbl">المكسب</div><div class="big q" id="s3c" style="font-size:66px">⬇</div></div>
+</div>`); root.append(s3);
+
+// مشهد 4أ: مسار واتساب
+const flow = $(`<div class="layer" style="top:250px;left:40px;right:40px;display:flex;justify-content:space-between;align-items:center">
+  ${[['💬','واتساب','#1FAF5A'],['🤖','تنظيم البيانات','#0FA3A3'],['👨‍💼','مراجعة متخصصين','#13315C'],['📊','تقارير وقرارات','#C99A2E']].map(([e,t,c],i)=>`<div class="fstep" style="display:flex;flex-direction:column;align-items:center;gap:12px;width:230px"><span style="width:150px;height:150px;border-radius:44px;background:${c};display:grid;place-items:center;font-size:76px;box-shadow:0 20px 40px rgba(0,0,0,.25)">${e}</span><b style="font-size:30px;font-weight:900;background:rgba(255,255,255,.95);padding:6px 18px;border-radius:99px;white-space:nowrap">${t}</b></div>`).join('')}
+</div>`); root.append(flow);
+
+// مشهد 4ب: الداشبورد بيتبني
+const dash = $(`<div class="layer glass" style="top:200px;left:50px;right:50px">
+  <span class="tag">مثال توضيحي</span>
+  <div class="row" style="margin-bottom:20px"><b style="font-size:44px;font-weight:900">لوحة حسابك الشهرية</b><span class="chip" style="background:#E5F6F4;color:#0B7F82;font-size:28px;padding:8px 20px">على واتساب ✓</span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">المبيعات</div><div class="big" id="k1">0</div><div class="d ok">▲ 6%</div></div>
+    <div class="kpi"><div class="lbl">هامش الربح</div><div class="big ok" id="k2">0%</div><div class="d ok">واضح بالظبط</div></div>
+    <div class="kpi"><div class="lbl">المصاريف</div><div class="big" id="k3">0</div><div class="d" style="color:#C99A2E">⚠ مصروف غير معتاد</div></div>
+    <div class="kpi"><div class="lbl">أصناف راكدة</div><div class="big" style="color:#C99A2E" id="k4">0</div><div class="d" style="color:#55657E">اتحددت بالاسم</div></div>
+  </div>
+  <div class="lbl" style="margin-top:22px">صافي الربح حسب الفرع</div>
+  <div class="bars">
+    <div class="b"><span id="b1v"></span><i id="b1"></i><em>فرع 1</em></div>
+    <div class="b"><span id="b2v"></span><i id="b2"></i><em>فرع 2</em></div>
+    <div class="b g"><span id="b3v"></span><i id="b3"></i><em>فرع 3</em></div>
+    <div class="b"><span id="b4v"></span><i id="b4"></i><em>فرع 4</em></div>
+  </div>
+</div>`); root.append(dash);
+
+// مشهد 5: قبل وبعد حسابك
+const ba = $(`<div class="layer" style="top:210px;left:40px;right:40px">
+  <div class="ba">
+    <div class="before"><h3>قبل حسابك</h3><ul>
+      <li>الربح؟ <b>مش واضح</b></li><li>المخزون؟ <b>تخمين</b></li><li>التقارير؟ <b>مفيش</b></li><li>القرار؟ <b>بالإحساس</b></li></ul></div>
+    <div class="after"><h3>بعد حسابك ✨</h3><ul>
+      <li>هامش ربحك <b>بالأرقام</b></li><li>الراكد <b>متحدد بالاسم</b></li><li>تقرير <b>على واتساب</b></li><li>قرارك <b>أذكى</b></li></ul></div>
+  </div>
+  <div style="text-align:center;margin-top:16px"><span class="chip" style="background:rgba(6,23,46,.85);color:#E7C25C;font-size:30px">متابعة مالية أونلاين 100% — من غير محاسب عندك طول اليوم</span></div>
+</div>`); root.append(ba);
+
+// مشهد 5ب: إشعار التقرير
+const toast = $(`<div class="layer glass" style="top:230px;left:70px;right:70px">
+  <div class="row"><div class="ic" style="background:#1FAF5A;color:#fff">💬</div><div style="flex:1"><b style="font-size:40px;font-weight:900">حسابك</b><div class="lbl" style="font-size:30px">تقرير الشهر وصل 📊</div></div><span class="lbl" style="font-size:26px">دلوقتي</span></div>
+  <div style="margin-top:18px;display:grid;gap:12px;font-size:34px;font-weight:800">
+    <div class="ck">✅ هامش الربح: <span class="ok">32%</span></div>
+    <div class="ck">✅ 12 صنف راكد — اقتراح تصريف</div>
+    <div class="ck">✅ فرع 3 الأعلى ربحاً</div>
+  </div>
+  <div style="text-align:left;margin-top:8px"><span class="tag" style="position:static;font-size:22px">مثال توضيحي</span></div>
+</div>`); root.append(toast);
+
+// النهاية
+const endbg = $(`<div class="layer" id="endbg"></div>`); root.append(endbg);
+const end = $(`<div class="layer" id="end">
+  <div id="eLogo" style="width:220px;height:220px">${LOGO}</div>
+  <div id="eName" style="font-weight:900;font-size:136px;line-height:1.2">حسابك</div>
+  <div id="eTag" style="margin-top:14px;font-weight:800;font-size:54px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.22);border-radius:99px;padding:12px 44px">حساباتك واضحة... وقراراتك أذكى</div>
+  <div id="eFrom" style="margin-top:46px;font-weight:900;font-size:52px;color:#E7C25C">باقات تبدأ من 5,000 جنيه شهرياً لكل فرع</div>
+  <div class="plans" style="margin-top:30px">
+    <div class="plan" id="p1"><div class="n">الأساسية</div><div class="p">5,000</div><div class="u">جنيه / للفرع / شهرياً</div></div>
+    <div class="plan f" id="p2"><div class="n">الاحترافية</div><div class="p">7,000</div><div class="u">جنيه / للفرع / شهرياً</div></div>
+    <div class="plan" id="p3"><div class="n">الشاملة</div><div class="p">10,000</div><div class="u">جنيه / للفرع / شهرياً</div></div>
+  </div>
+  <div id="eCta" style="margin-top:52px;background:#fff;color:#0B2545;border-radius:44px;padding:34px 40px;text-align:center;width:940px">
+    <div style="font-weight:900;font-size:58px">احجز استشارتك المجانية الآن</div>
+    <div style="display:flex;gap:22px;justify-content:center;margin-top:22px">
+      <div class="phone">📞 01096561078</div><div class="phone">📞 01100955106</div>
+    </div>
+    <div style="font-weight:700;font-size:30px;color:#55657E;margin-top:14px">واتساب / تليفون</div>
+  </div>
+</div>`); root.append(end);
+
+// الترجمة: جمل قصيرة مع إبراز الكلمة الحالية
+const clean = (w) => w.replace(/[«»ً-ْ]/g, '').replace(/\.\.\.$/, '…');
+const phrases = []; let cur = [];
+WORDS.forEach((w, i) => {
+  cur.push(i);
+  const brk = /[؟?!.،,…]$/.test(w.t) || w.t.endsWith('...');
+  if ((brk && cur.length >= 2) || cur.length >= 5) { phrases.push(cur); cur = []; }
+});
+if (cur.length) phrases.push(cur);
+const cap = $(`<div id="cap" class="layer"><div class="box"></div></div>`); root.append(cap);
+const capBox = cap.querySelector('.box');
+let lastPhrase = -1;
+
+const SCN = %SCENES%; // حدود المشاهد بالثواني
+function render(T) {
+  const t = T - OFF;
+  // لوجو صغير من مشهد الحل لحد النهاية
+  show(bug, T, SCN.s4a, SCN.end - 0.2, { from: 'left' });
+
+  // مشهد 1
+  if (show(s1, T, SCN.s1 + 0.6, SCN.s2 - 0.2)) {
+    s1.querySelector('#s1n').textContent = fmt(18450 * ease((T - SCN.s1 - 0.6) / 2.6));
+    s1.querySelector('#s1q').style.opacity = 0.55 + 0.45 * Math.abs(Math.sin(T * 5));
+  }
+  // مشهد 2
+  if (show(s2, T, SCN.s2 + 0.4, SCN.s3 - 0.2, { from: 'left' })) s2.querySelector('#s2bar').style.width = (96 * ease((T - SCN.s2 - 0.6) / 1.8)) + '%';
+  // مشهد 3
+  if (show(s3, T, SCN.s3 + 0.4, SCN.s4a - 0.15, { from: 'right' })) {
+    const k = (T - SCN.s3 - 0.6);
+    s3.querySelector('#s3a').style.width = (70 * ease(k / 1.4)) + '%';
+    s3.querySelector('#s3b').style.width = (88 * ease((k - 0.8) / 2.2)) + '%';
+    s3.querySelector('#s3c').style.transform = `translateY(${Math.sin(T * 6) * 6}px)`;
+  }
+  // مشهد 4أ: خطوات تظهر واحدة ورا التانية
+  show(flow, T, SCN.s4a + 0.5, SCN.s4b - 0.1, { from: 'pop' });
+  flow.querySelectorAll('.fstep').forEach((el, i) => {
+    const p = back((T - SCN.s4a - 0.6 - i * 0.55) / 0.45);
+    el.style.opacity = clamp((T - SCN.s4a - 0.6 - i * 0.55) / 0.2); el.style.transform = `scale(${0.4 + 0.6 * p})`;
+  });
+  // مشهد 4ب: داشبورد بيتملي
+  if (show(dash, T, SCN.s4b + 0.2, SCN.s5 - 0.15)) {
+    const k = T - SCN.s4b - 0.4;
+    dash.querySelector('#k1').textContent = fmt(485000 * ease(k / 1.8));
+    dash.querySelector('#k2').textContent = Math.round(32 * ease((k - 0.3) / 1.8)) + '%';
+    dash.querySelector('#k3').textContent = fmt(96000 * ease((k - 0.6) / 1.8));
+    dash.querySelector('#k4').textContent = Math.round(12 * ease((k - 0.9) / 1.6));
+    [78, 56, 100, 41].forEach((h, i) => {
+      const v = ease((k - 1.2 - i * 0.25) / 1.0);
+      dash.querySelector('#b' + (i + 1)).style.height = (h * 2.3 * v) + 'px';
+      dash.querySelector('#b' + (i + 1) + 'v').textContent = v > 0.05 ? fmt([62, 45, 80, 33][i] * v) + 'K' : '';
+    });
+  }
+  // مشهد 5: قبل/بعد
+  if (show(ba, T, SCN.s5 + 0.2, SCN.s5b - 0.15, { from: 'pop' })) {
+    ba.querySelectorAll('.after li').forEach((li, i) => { const p = clamp((T - SCN.s5 - 0.8 - i * 0.45) / 0.3); li.style.opacity = 0.15 + 0.85 * p; li.style.transform = `translateX(${(1 - ease(p)) * -40}px)`; });
+  }
+  // مشهد 5ب: إشعار
+  if (show(toast, T, SCN.s5b + 0.15, SCN.end - 0.1, { from: 'down', dist: 160 })) {
+    toast.querySelectorAll('.ck').forEach((el, i) => { const p = clamp((T - SCN.s5b - 0.7 - i * 0.5) / 0.3); el.style.opacity = p; el.style.transform = `scale(${0.85 + 0.15 * back(p)})`; });
+  }
+  // النهاية
+  const e = clamp((T - SCN.end) / 0.5);
+  endbg.style.opacity = e; end.style.opacity = e;
+  const pop = (id, d) => { const el = document.getElementById(id); const p = clamp((T - SCN.end - d) / 0.45); el.style.opacity = p; el.style.transform = `scale(${0.5 + 0.5 * back(p)})`; };
+  pop('eLogo', 0.1); pop('eName', 0.35); pop('eTag', 0.9); pop('eFrom', 2.6); pop('p1', 3.2); pop('p2', 3.45); pop('p3', 3.7); pop('eCta', 5.6);
+  const l = document.getElementById('eLogo'); l.style.transform += ` rotate(${Math.sin(T * 2) * 2}deg)`;
+
+  // الترجمة
+  const pi = phrases.findIndex((p, k) => t >= WORDS[p[0]].s - 0.12 && (k === phrases.length - 1 || t < WORDS[phrases[k + 1][0]].s - 0.12));
+  const lastEnd = WORDS[WORDS.length - 1].e;
+  if (pi < 0 || t > lastEnd + 0.6 || T >= SCN.end + 0.3) { cap.style.opacity = 0; return; }
+  cap.style.opacity = 1;
+  if (pi !== lastPhrase) { capBox.innerHTML = phrases[pi].map(i => `<span class="w" data-i="${i}">${clean(WORDS[i].t)}</span>`).join(' '); lastPhrase = pi; }
+  capBox.querySelectorAll('.w').forEach(sp => { const w = WORDS[+sp.dataset.i]; sp.className = 'w ' + (t >= w.s && t < w.e + 0.08 ? 'on' : t >= w.e ? 'past' : 'fut'); });
+  const pin = clamp((t - (WORDS[phrases[pi][0]].s - 0.12)) / 0.18);
+  cap.style.transform = `translateY(${(1 - ease(pin)) * 30}px)`;
+}
+window.render = render;
+</script>
+</body>
+</html>
