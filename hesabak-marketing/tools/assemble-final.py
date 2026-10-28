@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""المونتاج النهائي لإعلان حسابك: مشاهد Veo + جرافيكس التقارير والترجمة + التعليق الصوتي + مؤثرات Veo الصوتية.
+"""المونتاج النهائي لإعلان حسابك: مشاهد Veo + جرافيكس التقارير والترجمة + التعليق الصوتي + مؤثرات صوتية نظيفة.
 
 المدخلات:
   video/veo/clips/V1.mp4 … V5B.mp4        مشاهد Veo (9:16)
   video/motion/frames/f00000.png …       طبقة الجرافيكس الشفافة (tools/render-motion.js)
   video/motion/timeline.json             توقيت المشاهد
   video/voiceover/v2/mostafa-take1.mp3   التعليق الصوتي
+  video/sfx/*.mp3                        المؤثرات الصوتية (ElevenLabs)
 المخرج:
   video/final/Hesabak-Ad-9x16.mp4
 """
@@ -20,7 +21,18 @@ OUT.mkdir(exist_ok=True)
 TL = json.loads((V / 'motion' / 'timeline.json').read_text())
 S, TOTAL, FPS, OFF = TL['SCENES'], TL['TOTAL'], TL['FPS'], TL['OFF']
 VO = V / 'voiceover' / 'v2' / 'mostafa-take1.mp3'
-SFX_GAIN = 0.32  # مؤثرات Veo تحت الصوت
+# صوت Veo مش مستخدم: كان فيه كلام مش مفهوم (مش عربي). المؤثرات نظيفة من ElevenLabs ومتوقّتة على القطعات.
+SFX = V / 'sfx'
+CUES = [  # (الملف، الثانية، مستوى الصوت)
+    ('receipt', 1.0, 0.45),
+    ('whoosh', S['s2'] - 0.25, 0.55), ('coins', S['s2'] + 1.0, 0.40),
+    ('whoosh', S['s3'] - 0.25, 0.55), ('kitchen', S['s3'] + 0.2, 0.55), ('coins', S['s3'] + 1.6, 0.30),
+    ('whoosh', S['s4a'] - 0.25, 0.60), ('send', S['s4a'] + 0.7, 0.50),
+    ('whoosh', S['s4b'] - 0.25, 0.55), ('shimmer', S['s4b'] + 0.4, 0.45),
+    ('whoosh', S['s5'] - 0.25, 0.55), ('shimmer', S['s5'] + 0.6, 0.35),
+    ('whoosh', S['s5b'] - 0.25, 0.55), ('ding', S['s5b'] + 0.2, 0.55),
+    ('logo-hit', S['end'] + 0.05, 0.55),
+]
 
 order = [('V1', 's1', 's2'), ('V2', 's2', 's3'), ('V3', 's3', 's4a'), ('V4A', 's4a', 's4b'),
          ('V4B', 's4b', 's5'), ('V5', 's5', 's5b'), ('V5B', 's5b', 'end')]
@@ -42,20 +54,20 @@ for k, (clip, a, b) in enumerate(order):
     pad = max(0.0, need - have / speed)
     fv.append(f'[{k}:v]setpts=PTS/{speed:.4f},fps={FPS},scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,'
               f'setsar=1,tpad=stop_mode=clone:stop_duration={pad:.3f},trim=0:{need:.3f},setpts=PTS-STARTPTS[v{k}]')
-    sfx_end = S[b] - S[a]  # مؤثرات المشهد بس، مش أثناء شاشة النهاية
-    fa.append(f'[{k}:a]atempo={speed:.4f},atrim=0:{sfx_end:.3f},asetpts=PTS-STARTPTS,aresample=48000,'
-              f'afade=t=in:d=0.08,afade=t=out:st={max(0, sfx_end - 0.15):.3f}:d=0.15,volume={SFX_GAIN},'
-              f'adelay={int(S[a] * 1000)}|{int(S[a] * 1000)}[a{k}]')
 
 n = len(order)
 inputs += ['-framerate', str(FPS), '-i', str(V / 'motion' / 'frames' / 'f%05d.png')]
 inputs += ['-i', str(VO)]
 ov, vo = n, n + 1
+for j, (name, t, g) in enumerate(CUES):
+    inputs += ['-i', str(SFX / f'{name}.mp3')]
+    ms = int(max(0, t) * 1000)
+    fa.append(f'[{n + 2 + j}:a]aresample=48000,volume={g},adelay={ms}|{ms}[a{j}]')
 filters = fv + fa + [
     ''.join(f'[v{k}]' for k in range(n)) + f'concat=n={n}:v=1:a=0[base]',
     f'[base][{ov}:v]overlay=0:0:format=auto,format=yuv420p[vout]',
     f'[{vo}:a]aresample=48000,adelay={int(OFF * 1000)}|{int(OFF * 1000)},volume=1.0[vo]',
-    ''.join(f'[a{k}]' for k in range(n)) + f'[vo]amix=inputs={n + 1}:normalize=0:duration=longest,'
+    ''.join(f'[a{j}]' for j in range(len(CUES))) + f'[vo]amix=inputs={len(CUES) + 1}:normalize=0:duration=longest,'
     f'apad=whole_dur={TOTAL},atrim=0:{TOTAL},loudnorm=I=-14:TP=-1.0:LRA=9,aresample=48000[aout]',
 ]
 out = OUT / 'Hesabak-Ad-9x16.mp4'
