@@ -154,7 +154,7 @@ function endCardHTML(captions = true) {
     <div style="margin-top:60px;background:#fff;color:#0B2545;border-radius:40px;padding:34px 50px;text-align:center;width:900px">
       <div style="font-family:Cairo;font-weight:900;font-size:56px">احجز استشارتك المجانية الآن</div>
       <div style="display:flex;gap:24px;justify-content:center;margin-top:24px">
-        ${['01096561078', '0110955106'].map(n => `<div style="display:flex;align-items:center;gap:14px;background:#1FAF5A;color:#fff;border-radius:99px;padding:14px 34px;font-family:Cairo;font-weight:800;font-size:48px;direction:ltr"><span style="width:44px;height:44px;display:inline-block">${ic('phone')}</span>${n}</div>`).join('')}
+        ${['01096561078', '01100955106'].map(n => `<div style="display:flex;align-items:center;gap:14px;background:#1FAF5A;color:#fff;border-radius:99px;padding:14px 34px;font-family:Cairo;font-weight:800;font-size:48px;direction:ltr"><span style="width:44px;height:44px;display:inline-block">${ic('phone')}</span>${n}</div>`).join('')}
       </div>
       <div style="font-family:Cairo;font-weight:700;font-size:30px;color:#55657E;margin-top:16px">واتساب / تليفون</div>
     </div>
