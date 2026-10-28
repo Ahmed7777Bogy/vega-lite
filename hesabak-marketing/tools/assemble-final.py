@@ -5,7 +5,7 @@
   video/veo/clips/V1.mp4 … V5B.mp4        مشاهد Veo (9:16)
   video/motion/frames/f00000.png …       طبقة الجرافيكس الشفافة (tools/render-motion.js)
   video/motion/timeline.json             توقيت المشاهد
-  video/voiceover/v2/mostafa-take1.mp3   التعليق الصوتي
+  video/voiceover/v3/mostafa-take1.mp3   التعليق الصوتي
   video/sfx/*.mp3                        المؤثرات الصوتية (ElevenLabs)
 المخرج:
   video/final/Hesabak-Ad-9x16.mp4
@@ -20,7 +20,7 @@ OUT = V / 'final'
 OUT.mkdir(exist_ok=True)
 TL = json.loads((V / 'motion' / 'timeline.json').read_text())
 S, TOTAL, FPS, OFF = TL['SCENES'], TL['TOTAL'], TL['FPS'], TL['OFF']
-VO = V / 'voiceover' / 'v2' / 'mostafa-take1.mp3'
+VO = V / 'voiceover' / 'v3' / 'mostafa-take1.mp3'
 # صوت Veo مش مستخدم: كان فيه كلام مش مفهوم (مش عربي). المؤثرات نظيفة من ElevenLabs ومتوقّتة على القطعات.
 SFX = V / 'sfx'
 CUES = [  # (الملف، الثانية، مستوى الصوت)

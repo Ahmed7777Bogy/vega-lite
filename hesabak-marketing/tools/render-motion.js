@@ -9,13 +9,13 @@ const B = path.join(root, 'brochure');
 const M = path.join(root, 'video', 'motion');
 const FPS = 30;
 const OFF = 0.6; // بداية التعليق الصوتي
-const SCENES = { s1: 0, s2: 6.0, s3: 11.8, s4a: 16.9, s4b: 21.6, s5: 26.5, s5b: 31.0, end: 33.9 };
-const TOTAL = 46;
+const SCENES = { s1: 0, s2: 6.6, s3: 12.1, s4a: 17.3, s4b: 20.9, s5: 25.9, s5b: 28.6, end: 31.3 };
+const TOTAL = 43;
 
 const font = f => fs.readFileSync(path.join(B, 'fonts', f)).toString('base64');
 const fonts = [700, 800, 900].map(w => `@font-face{font-family:Cairo;src:url(data:font/ttf;base64,${font(`Cairo-${w}.ttf`)});font-weight:${w}}`).join('');
 const logo = fs.readFileSync(path.join(B, 'logo.svg'), 'utf8').replace(/\n\s*/g, ' ').replace(/'/g, '"');
-const words = fs.readFileSync(path.join(root, 'video', 'voiceover', 'v2', 'words-clean.json'), 'utf8');
+const words = fs.readFileSync(path.join(root, 'video', 'voiceover', 'v3', 'words-clean.json'), 'utf8');
 
 const html = fs.readFileSync(path.join(M, 'overlay.html'), 'utf8')
   .replace('<style>', `<style>${fonts}`)
