@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="hb-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#13315C"/><stop offset="1" stop-color="#06172E"/></linearGradient>
+    <linearGradient id="hb-bar" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#0FA3A3"/><stop offset="1" stop-color="#14C2B3"/></linearGradient>
+    <linearGradient id="hb-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F1D27A"/><stop offset="1" stop-color="#C99A2E"/></linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#hb-bg)"/>
+  <rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.3" fill="none" stroke="#14C2B3" stroke-opacity=".35" stroke-width="1.5"/>
+  <rect x="14" y="36" width="9" height="15" rx="2.5" fill="url(#hb-bar)"/>
+  <rect x="27.5" y="28" width="9" height="23" rx="2.5" fill="url(#hb-bar)"/>
+  <rect x="41" y="20" width="9" height="31" rx="2.5" fill="url(#hb-bar)"/>
+  <path d="M13 30 L27 20 L35 25 L48 13" fill="none" stroke="url(#hb-gold)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="48.5" cy="12.5" r="4.2" fill="url(#hb-gold)"/>
+</svg>
